@@ -38,6 +38,11 @@ if !ENV["EXTERNAL_LIB"]
       raise "'#{cmd}' failed" unless system(cmd)
 
       Dir.chdir(BUNDLE_PATH) do
+        if RUBY_PLATFORM =~ /darwin14/i
+          puts(cmd = "patch -p1 < ../libmemcached-1.0.18_osx-fix.diff 2>&1")
+          raise "'#{cmd}' failed" unless system(cmd)
+        end
+
         puts(cmd = "./configure --prefix=#{HERE} --without-memcached --disable-dependency-tracking #{ARGV.join(' ')} 2>&1")
         raise "'#{cmd}' failed" unless system(cmd)
 
