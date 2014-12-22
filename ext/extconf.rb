@@ -21,6 +21,13 @@ def copy_gem(gem_dir)
   end
 end
 
+# we've already built the .so
+if File.exist?("#{HERE}/native_server.so")
+  # write a NOOP Makefile
+  File.open("#{HERE}/Makefile", 'w') {|f| f.puts 'install: ;'}
+  exit 0
+end
+
 if !ENV["EXTERNAL_LIB"]
   $includes    = " -I#{HERE}/include"
   $libraries   = " -L#{HERE}/lib"
