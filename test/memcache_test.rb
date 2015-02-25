@@ -1,5 +1,4 @@
-require 'test/unit'
-require File.dirname(__FILE__) + '/test_helper'
+require_relative 'test_helper'
 
 class MemcacheTest < Test::Unit::TestCase
   PORTS = [11212, 11213, 11214, 11215, 11216, 11217]

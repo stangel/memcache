@@ -1,5 +1,4 @@
-require 'test/unit'
-require File.dirname(__FILE__) + '/memcache_server_test_helper'
+require_relative 'memcache_server_test_helper'
 
 class MemcacheServerTest < Test::Unit::TestCase
   include MemcacheServerTestHelper

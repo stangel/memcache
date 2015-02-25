@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/memcache_server_test_helper'
+require_relative 'memcache_server_test_helper'
 
 class MemcacheLocalServerTest < Test::Unit::TestCase
   include MemcacheServerTestHelper
@@ -7,4 +7,5 @@ class MemcacheLocalServerTest < Test::Unit::TestCase
   def setup
     @memcache = Memcache::LocalServer.new
   end
+
 end

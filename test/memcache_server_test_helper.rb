@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper'
+require_relative 'test_helper'
 
 module MemcacheServerTestHelper
   def test_prefix
@@ -74,6 +74,7 @@ module MemcacheServerTestHelper
     assert_equal 'baz', m.get('baz')[:value]
 
     assert_equal 'bap', m.set('bam', 'bap', (Time.now + 1).to_i)
+#    pp :all, ActiveRecord::Base.connection.execute('select * from memcache_test').to_a, ActiveRecord::Base.connection.execute('select NOW() from memcache_test').to_a, Time.now.to_s
     assert_equal 'bap', m.get('bam')[:value]
 
     sleep 2

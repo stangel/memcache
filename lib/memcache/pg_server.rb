@@ -36,7 +36,9 @@ class Memcache
       keys = keys.collect {|key| quote(key.to_s)}.join(',')
       sql = %{
         SELECT key, value, flags FROM #{table}
-          WHERE key IN (#{keys}) AND #{prefix_clause} AND #{expiry_clause}
+         WHERE key IN (#{keys})
+           AND #{prefix_clause}
+           AND (#{expiry_clause})
       }
 
       results = {}
@@ -57,7 +59,7 @@ class Memcache
         value = value.to_i + amount
         value = 0 if value < 0
         db.exec %{
-          UPDATE #{table} SET value = #{quote(value)}, updated_at = NOW()
+          UPDATE #{table} SET value = #{quote(value)}, updated_at = '#{now}'
             WHERE key = #{quote(key)} AND #{prefix_clause}
         }
         value
@@ -102,7 +104,7 @@ class Memcache
       delete_expired(key)
       result = db.exec %{
         UPDATE #{table}
-          SET value = value || #{quote(value)}, updated_at = NOW()
+          SET value = value || #{quote(value)}, updated_at = '#{now}'
           WHERE key = #{quote(key)} AND #{prefix_clause}
       }
       result.cmdtuples == 1
@@ -112,7 +114,7 @@ class Memcache
       delete_expired(key)
       result = db.exec %{
         UPDATE #{table}
-          SET value = #{quote(value)} || value, updated_at = NOW()
+          SET value = #{quote(value)} || value, updated_at = '#{now}'
           WHERE key = #{quote(key)} AND #{prefix_clause}
       }
       result.cmdtuples == 1
@@ -123,8 +125,8 @@ class Memcache
     def insert(key, value, expiry, flags)
       db.exec %{
         INSERT INTO #{table} (prefix, key, value, flags, updated_at, expires_at)
-          VALUES (#{quoted_prefix}, #{quote(key)}, #{quote(value)}, #{flags.to_i}, NOW(), #{expiry_sql(expiry)})
-      }
+          VALUES (#{quoted_prefix}, #{quote(key)}, #{quote(value)}, #{flags.to_i}, #{quote(now)}, #{expiry_sql(expiry)})
+      }.tap {|sql| pp [:sql, sql]}
     end
 
     def update(key, value, expiry, flags)
@@ -132,7 +134,7 @@ class Memcache
         UPDATE #{table}
           SET value = #{quote(value)}, 
               flags = #{flags.to_i},
-              updated_at = NOW(),
+              updated_at = '#{now}',
               expires_at = #{expiry_sql(expiry)}
           WHERE key = #{quote(key)} AND #{prefix_clause}
       }
@@ -165,7 +167,7 @@ class Memcache
     end
 
     def expiry_clause
-      "expires_at IS NULL OR expires_at > NOW()"
+      "expires_at IS NULL OR expires_at > '#{now}'"
     end
 
     def expiry_sql(expiry)
@@ -173,7 +175,7 @@ class Memcache
       if expiry.kind_of?(Time)
         quote(expiry.to_s(:db))
       else
-        expiry == 0 ? 'NULL' : "NOW() + interval '#{expiry} seconds'"
+        expiry == 0 ? 'NULL' : "'#{now}'::timestamp + interval '#{expiry} seconds'"
       end
     end
 
@@ -184,5 +186,10 @@ class Memcache
     def prefix_clause
       "prefix = #{quoted_prefix}"
     end
+
+    def now
+      Time.now.to_s(:db)
+    end
+
   end
 end
