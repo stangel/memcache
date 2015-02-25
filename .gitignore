@@ -3,6 +3,7 @@ pkg
 *.bundle
 *.so
 *.o
+bundler
 Gemfile.lock
 Makefile
 mkmf.log
