@@ -4,6 +4,7 @@ $:.unshift(File.dirname(__FILE__))
 require 'memcache/base'
 require 'memcache/server'
 require 'memcache/local_server'
+require 'extensions/hash'
 begin
   require 'memcache/native_server'
 rescue LoadError => e
@@ -16,7 +17,7 @@ class Memcache
   LOCK_TIMEOUT    = 5
   WRITE_LOCK_WAIT = 1
 
-  attr_reader :default_expiry, :namespace, :servers, :backup
+  attr_reader :default_expiry, :namespace, :servers
 
   class Error < StandardError; end
   class ConnectionError < Error
@@ -53,15 +54,15 @@ class Memcache
       server_class = opts[:segment_large_values] ? SegmentedServer : Server
       @servers = (opts[:servers] || [ opts[:server] ]).collect do |server|
         case server
-        when Hash
-          server = server_class.new(opts.merge(server))
-        when String
-          host, port = server.split(':')
-          server = server_class.new(opts.merge(:host => host, :port => port))
-        when Class
-          server = server.new
-        when :local
-          server = Memcache::LocalServer.new
+          when Hash
+            server = server_class.new(opts.merge(server))
+          when String
+            host, port = server.split(':')
+            server = server_class.new(opts.merge(:host => host, :port => port))
+          when Class
+            server = server.new
+          when :local, 'local'
+            server = Memcache::LocalServer.new
         end
         server
       end
@@ -80,7 +81,7 @@ class Memcache
   end
 
   def inspect
-    "<Memcache: %d servers, ns: %p>" % [@servers.length, namespace]
+    "<Memcache: %d servers, ns: %p, backup: %p>" % [@servers.length, namespace, @backup]
   end
 
   def namespace=(namespace)
@@ -354,24 +355,24 @@ class Memcache
     set(key, value)
   end
 
-  def self.init(yaml_file = nil)
-    yaml_file ||= File.join(Rails.root, 'config', 'memcached.yml')
+  def backup
+    return @backup if @backup.nil? or @backup.is_a?(Memcache)
+    @backup = Memcache.pool[@backup.to_sym]
+  end
 
-    if File.exists?(yaml_file)
-      yaml = YAML.load_file(yaml_file)
-      defaults = (yaml.delete('defaults') || {}).symbolize_keys
-      config   = (yaml[Rails.env] || {}).symbolize_keys
+  def self.init(config)
+    raise ArgumentError.new('parameter must be a hash') unless config.is_a?(Hash)
 
-      if not config.empty? and not config[:disabled]
-        if config[:servers]
-          opts = defaults.merge(config.symbolize_keys)
-          Object.const_set('CACHE', Memcache.new(opts))
-        else
-          config.each do |connection, opts|
-            opts = defaults.merge(opts.symbolize_keys)
-            if not opts.empty? and not opts[:disabled]
-              Memcache.pool[connection] = Memcache.new(opts)
-            end
+    config = config.symbolize_keys
+
+    unless config.empty? or config[:disabled]
+      if config[:servers]
+        Object.const_set('CACHE', Memcache.new(config))
+      else
+        config.each do |connection, opts|
+          opts = opts.symbolize_keys
+          unless opts.empty? or opts[:disabled]
+            Memcache.pool[connection] = Memcache.new(opts)
           end
         end
       end
@@ -468,9 +469,11 @@ protected
     def reset
       @cache_by_scope.values.each {|c| c.reset}
     end
-  end
+
+  end # class Memcache::Pool
 
   def self.pool
     @@cache_pool ||= Pool.new
   end
-end
+
+end # class Memcache

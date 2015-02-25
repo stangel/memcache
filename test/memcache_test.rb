@@ -1,7 +1,10 @@
 require_relative 'test_helper'
+require 'yaml'
 
 class MemcacheTest < Test::Unit::TestCase
+
   PORTS = [11212, 11213, 11214, 11215, 11216, 11217]
+
   def setup
     init_memcache(*PORTS) do
       Memcache.new(:servers => PORTS.collect {|p| "localhost:#{p}"})
@@ -266,4 +269,65 @@ class MemcacheTest < Test::Unit::TestCase
       assert_equal i, m.get(i, :raw => true)
     end
   end
+
+  def test_init_with_non_hash
+    # Memcache 2.0.0: Memcache.init no longer accepts a file name String
+    assert_raise ArgumentError do
+      Memcache.init(:foo)
+    end
+  end
+
+  def test_init_single
+    config = {
+      :servers => [:local]
+    }
+
+    assert ! Object.const_defined?(:CACHE)
+
+    Memcache.init(config)
+
+    assert Object.const_defined?(:CACHE)
+  end
+
+  def test_init_pool
+    config = {
+
+      :local => {
+        :servers => [:local],
+      },
+
+      :general => {
+        :servers => ['127.0.0.1:9999'],
+      },
+
+    }
+
+    assert ! Memcache.pool.include?(:local), 'precondition failed'
+    assert ! Memcache.pool.include?(:general), 'precondition failed'
+
+    Memcache.init(config)
+
+    assert Memcache.pool.include?(:local)
+    assert Memcache.pool.include?(:general)
+  end
+
+  def test_init_with_backup
+    config = {
+
+      :local_general => {
+        :backup  => 'general',
+        :servers => [:local],
+      },
+
+      :general => {
+        :servers => ['127.0.0.1:11212'],
+      },
+
+    }
+
+    Memcache.init(config)
+
+    assert_equal Memcache.pool[:general], Memcache.pool[:local_general].backup
+  end
+
 end
