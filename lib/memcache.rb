@@ -107,11 +107,14 @@ class Memcache
 
   def get(keys, opts = {})
     raise 'opts must be hash' unless opts.instance_of?(Hash)
+
     if keys.instance_of?(Array)
       keys = keys.collect {|key| key.to_s}
       multi_get(keys, opts)
+
     else
       key = keys.to_s
+
       if opts[:expiry]
         result = server(key).gets(key)
         cas(key, result[:value], :raw => true, :cas => result[:cas], :expiry => opts[:expiry]) if result
@@ -119,12 +122,18 @@ class Memcache
         result = server(key).get(key, opts[:cas])
       end
 
+      if result.nil? and backup
+        if result = backup.get(key, :raw => true, :meta => true)
+          value = unmarshal(result[:value], key)
+          set(key, value, :flags => result[:flags], :skip_backup => true) # make local copy
+        end
+      end
+
       if result
         result[:value] = unmarshal(result[:value], key) unless opts[:raw]
-        opts[:meta] ? result : result[:value]
-      elsif backup
-        backup.get(key, opts)
+        return opts[:meta] ? result : result[:value]
       end
+
     end
   end
 
@@ -140,7 +149,7 @@ class Memcache
   def set(key, value, opts = {})
     opts = compatible_opts(opts)
     key  = key.to_s
-    backup.set(key, value, opts) if backup
+    backup.set(key, value, opts) if backup and !opts[:skip_backup]
 
     expiry = opts[:expiry] || default_expiry
     flags  = opts[:flags]  || 0
@@ -474,6 +483,10 @@ protected
 
   def self.pool
     @@cache_pool ||= Pool.new
+  end
+
+  def self.reset_pool
+    @@cache_pool = nil
   end
 
 end # class Memcache

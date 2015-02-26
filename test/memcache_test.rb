@@ -11,6 +11,10 @@ class MemcacheTest < Test::Unit::TestCase
     end
   end
 
+  def teardown
+    Memcache.reset_pool
+  end
+
   def test_get_and_set
     100.times do |i|
       m.set(i.to_s, i)
@@ -297,12 +301,12 @@ class MemcacheTest < Test::Unit::TestCase
       },
 
       :general => {
-        :servers => ['127.0.0.1:9999'],
+        :servers => ['127.0.0.1:11212'],
       },
 
     }
 
-    assert ! Memcache.pool.include?(:local), 'precondition failed'
+    assert ! Memcache.pool.include?(:local),   'precondition failed'
     assert ! Memcache.pool.include?(:general), 'precondition failed'
 
     Memcache.init(config)
@@ -312,7 +316,27 @@ class MemcacheTest < Test::Unit::TestCase
   end
 
   def test_init_with_backup
-    config = {
+    Memcache.init(config_with_backup)
+    assert_equal Memcache.pool[:general], Memcache.pool[:local_general].backup
+  end
+
+  def test_get_with_backup_saves_local_copy
+    Memcache.init(config_with_backup)
+    Memcache.pool[:general].set('foo', 'bar', :flags => 42, :expiry => 60)
+    assert_nil Memcache.pool[:local_general].servers.first.get('foo'), 'There should be NO local copy'
+
+    assert_equal 'bar', Memcache.pool[:local_general].get('foo') # should come from general
+    assert_equal 'bar', Memcache.pool[:local_general].get('foo') # should come from local_general
+
+    assert_equal 42,    Memcache.pool[:general].get('foo', :meta => true)[:flags], 'backup server value should not change'
+    assert_equal 'bar', Marshal.load(Memcache.pool[:local_general].servers.first.get('foo')[:value])
+    assert_equal 42,    Memcache.pool[:local_general].servers.first.get('foo')[:flags], 'flags should be copied'
+  end
+
+private
+
+  def config_with_backup
+    {
 
       :local_general => {
         :backup  => 'general',
@@ -324,10 +348,6 @@ class MemcacheTest < Test::Unit::TestCase
       },
 
     }
-
-    Memcache.init(config)
-
-    assert_equal Memcache.pool[:general], Memcache.pool[:local_general].backup
   end
 
 end
