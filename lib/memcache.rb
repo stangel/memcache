@@ -122,15 +122,17 @@ class Memcache
         result = server(key).get(key, opts[:cas])
       end
 
+      result[:value] = unmarshal(result[:value], key) unless result.nil? or opts[:raw] or backup
+
       if result.nil? and backup
         if result = backup.get(key, :raw => true, :meta => true)
           value = unmarshal(result[:value], key)
-          set(key, value, :flags => result[:flags], :skip_backup => true) # make local copy
+          set(key, value, :flags => result[:flags], :making_local_copy => true)
+          result[:value] = value unless opts[:raw]
         end
       end
 
       if result
-        result[:value] = unmarshal(result[:value], key) unless opts[:raw]
         return opts[:meta] ? result : result[:value]
       end
 
@@ -149,11 +151,11 @@ class Memcache
   def set(key, value, opts = {})
     opts = compatible_opts(opts)
     key  = key.to_s
-    backup.set(key, value, opts) if backup and !opts[:skip_backup]
+    backup.set(key, value, opts) if backup and !opts[:making_local_copy]
 
     expiry = opts[:expiry] || default_expiry
     flags  = opts[:flags]  || 0
-    data   = marshal(value, opts)
+    data   = opts[:making_local_copy] ? value : marshal(value, opts)
     server(key).set(key, data, expiry, flags)
     value
   end

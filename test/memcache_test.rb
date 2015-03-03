@@ -329,7 +329,7 @@ class MemcacheTest < Test::Unit::TestCase
     assert_equal 'bar', Memcache.pool[:local_general].get('foo') # should come from local_general
 
     assert_equal 42,    Memcache.pool[:general].get('foo', :meta => true)[:flags], 'backup server value should not change'
-    assert_equal 'bar', Marshal.load(Memcache.pool[:local_general].servers.first.get('foo')[:value])
+    assert_equal 'bar', Memcache.pool[:local_general].servers.first.get('foo')[:value]
     assert_equal 42,    Memcache.pool[:local_general].servers.first.get('foo')[:flags], 'flags should be copied'
   end
 
