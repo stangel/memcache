@@ -343,6 +343,17 @@ class MemcacheTest < Test::Unit::TestCase
     assert_equal 'bar', Memcache.pool[:local_general].servers.first.get('foo')[:value]
   end
 
+  def test_set_with_backup
+    Memcache.init(config_with_backup)
+    Memcache.pool[:local_general].set('foo', 'bar')
+
+    assert_equal 'bar', Memcache.pool[:local_general].get('foo'), 'value should be in local cache'
+    assert_equal 'bar', Memcache.pool[:local_general].servers.first.get('foo')[:value]
+
+    assert_equal 'bar', Memcache.pool[:general].get('foo'), 'value should be in backup cache'
+    assert_equal 'bar', Marshal.load(Memcache.pool[:general].servers.first.get('foo')[:value])
+  end
+
 private
 
   def config_with_backup

@@ -154,7 +154,7 @@ class Memcache
 
     expiry = opts[:expiry] || default_expiry
     flags  = opts[:flags]  || 0
-    data   = opts[:making_local_copy] ? value : marshal(value, opts)
+    data   = (backup || opts[:making_local_copy]) ? value : marshal(value, opts)
     server(key).set(key, data, expiry, flags)
     value
   end
