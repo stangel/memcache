@@ -126,9 +126,8 @@ class Memcache
 
       if result.nil? and backup
         if result = backup.get(key, :raw => true, :meta => true)
-          value = unmarshal(result[:value], key)
-          set(key, value, :flags => result[:flags], :making_local_copy => true)
-          result[:value] = value unless opts[:raw]
+          result[:value] = unmarshal(result[:value], key) unless opts[:raw]
+          set(key, result[:value], :flags => result[:flags], :making_local_copy => true)
         end
       end
 

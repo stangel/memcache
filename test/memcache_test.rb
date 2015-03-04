@@ -333,6 +333,16 @@ class MemcacheTest < Test::Unit::TestCase
     assert_equal 42,    Memcache.pool[:local_general].servers.first.get('foo')[:flags], 'flags should be copied'
   end
 
+  def test_get_raw_with_backup
+    Memcache.init(config_with_backup)
+    Memcache.pool[:general].servers.first.set('foo', 'bar', 60) # raw data
+    assert_nil Memcache.pool[:local_general].servers.first.get('foo'), 'There should be NO local copy'
+
+    assert_equal 'bar', Memcache.pool[:local_general].get('foo', :raw => true) # should come from general
+    assert_equal 'bar', Memcache.pool[:local_general].get('foo', :raw => true) # should come from local_general
+    assert_equal 'bar', Memcache.pool[:local_general].servers.first.get('foo')[:value]
+  end
+
 private
 
   def config_with_backup
