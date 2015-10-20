@@ -29,8 +29,9 @@ class Memcache
       end
     end
   end
-  class ServerError < Error; end
-  class ClientError < Error; end
+  class ServerError        < Error ; end
+  class ClientError        < Error ; end
+  class UnmarshalException < Error ; end
 
   def initialize(opts)
     @default_expiry   = opts[:default_expiry] || DEFAULT_EXPIRY
@@ -119,7 +120,10 @@ class Memcache
       end
 
       if result
-        result[:value] = unmarshal(result[:value], key) unless opts[:raw]
+        unless opts[:raw]
+          result[:value] = unmarshal(result[:value], key) rescue nil
+        end
+
         opts[:meta] ? result : result[:value]
       elsif backup
         backup.get(key, opts)
@@ -391,8 +395,12 @@ protected
     results = {}
     fetch_results = lambda do |server, keys|
       server.get(keys, opts[:cas]).each do |key, result|
-        result[:value] = unmarshal(result[:value], key) unless opts[:raw]
-        results[key] = opts[:meta] ? result : result[:value]
+        begin
+          result[:value] = unmarshal(result[:value], key) unless opts[:raw]
+          results[key] = opts[:meta] ? result : result[:value]
+        rescue UnmarshalException
+          # do not set results[key] --> missing_keys
+        end
       end
     end
 
@@ -423,13 +431,14 @@ protected
     opts[:raw] ? value : Marshal.dump(value)
   end
 
-  def unmarshal(value, key = nil)
+  def unmarshal(value, key)
     return value if value.nil?
     Marshal.load(value)
   rescue Exception => e
-    $stderr.puts "Memcache read error: #{e.class} #{e.to_s} on key '#{key}' while unmarshalling value: #{value}"
-    $stderr.puts caller
-    nil
+    msg = "Memcache read error: #{e.class} #{e.to_s} on key '#{key}' while unmarshalling value: #{value}"
+    $stderr.puts msg, caller
+    delete(key)
+    raise UnmarshalException.new(msg)
   end
 
   def server(key)

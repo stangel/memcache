@@ -12,3 +12,4 @@ ext/bin
 ext/lib
 ext/share
 ext/include
+.rbenv-version
