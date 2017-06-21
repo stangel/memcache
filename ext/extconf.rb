@@ -79,7 +79,7 @@ end
 # ------------------------------------------------------
 # thanks to: https://gist.github.com/IanVaughan/5489431
 $CPPFLAGS += " -DRUBY_19" if RUBY_VERSION =~ /1.9/
-$CPPFLAGS += " -DRUBY_20" if RUBY_VERSION =~ /2.0/
+$CPPFLAGS += " -DRUBY_2X" if RUBY_VERSION =~ /2./
 
 puts "*** Using Ruby version: #{RUBY_VERSION}"
 puts "*** with CPPFLAGS: #{$CPPFLAGS}"
