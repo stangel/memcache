@@ -145,7 +145,7 @@ class Memcache
     key  = key.to_s
     backup.set(key, value, opts) if backup
 
-    expiry = opts[:expiry] || default_expiry
+    expiry = parse_expiry(opts) || default_expiry
     flags  = opts[:flags]  || 0
     data   = marshal(value, opts)
     server(key).set(key, data, expiry, flags)
@@ -383,6 +383,32 @@ class Memcache
   end
 
 protected
+
+  EXPIRY_SECONDS_LIMIT = 2592000  # silent failure beyond!
+  def parse_expiry(opts)
+    # This is here to prevent accidentally passing :expiry => 3.months and then never realizing
+    # nothing gets cached.  See https://github.com/memcached/memcached/wiki/Programming#expiration
+    exp = opts[:expiry]
+
+    case exp.class.to_s
+    when 'NilClass'
+      nil
+    when 'Time'
+      exp.to_i
+    when 'Date', 'DateTime'
+      exp.to_time.to_i
+    when 'Fixnum'
+      if exp.respond_to?(:from_now)  # e.g. ActiveSupport::Duration
+        exp.from_now.to_i
+      elsif exp > EXPIRY_SECONDS_LIMIT
+        raise ArgumentError.new("Expiry seconds cannot be more than 30 days!  Pass a Date, Time or Duration instead.")
+      else
+        exp
+      end
+    else
+      exp
+    end
+  end
 
   def compatible_opts(opts)
     # Support passing expiry instead of opts. This may be deprecated in the future.

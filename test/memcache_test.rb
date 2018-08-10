@@ -206,6 +206,21 @@ class MemcacheTest < Test::Unit::TestCase
     end
   end
 
+  def test_expiry_limit
+    m.set("foo", "bar", :expiry => 2505600)  # same as 29.days.to_i
+    assert_equal 'bar', m.get("foo")
+
+    assert_raise(ArgumentError) do
+      m.set("foo", "bar", :expiry => 31557600)  # same as 1.year.to_i
+    end
+
+    # simulate 1.year.from_now without Rails libraries
+    Fixnum.send(:define_method, :from_now) { Time.now + self }
+    one_year = 31557600
+    m.set("foo", "bar", :expiry => one_year)  # ActiveSupport::Duration ok
+    assert_equal 'bar', m.get("foo")
+  end
+
   def test_in_namespace
     threads = []
     10.times do |i|
