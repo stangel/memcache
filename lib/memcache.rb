@@ -146,7 +146,7 @@ class Memcache
     backup.set(key, value, opts) if backup
 
     expiry = parse_expiry(opts) || default_expiry
-    flags  = opts[:flags]  || 0
+    flags  = opts[:flags]       || 0
     data   = marshal(value, opts)
     server(key).set(key, data, expiry, flags)
     value
@@ -162,8 +162,8 @@ class Memcache
     key  = key.to_s
     backup.add(key, value, opts) if backup
 
-    expiry = opts[:expiry] || default_expiry
-    flags  = opts[:flags]  || 0
+    expiry = parse_expiry(opts) || default_expiry
+    flags  = opts[:flags]       || 0
     data   = marshal(value, opts)
     server(key).add(key, data, expiry, flags) && value
   end
@@ -173,8 +173,8 @@ class Memcache
     key  = key.to_s
     backup.replace(key, value, opts) if backup
 
-    expiry = opts[:expiry] || default_expiry
-    flags  = opts[:flags]  || 0
+    expiry = parse_expiry(opts) || default_expiry
+    flags  = opts[:flags]       || 0
     data   = marshal(value, opts)
     server(key).replace(key, data, expiry, flags) && value
   end
@@ -184,8 +184,8 @@ class Memcache
     key = key.to_s
     backup.cas(key, value, opts) if backup
 
-    expiry = opts[:expiry] || default_expiry
-    flags  = opts[:flags]  || 0
+    expiry = parse_expiry(opts) || default_expiry
+    flags  = opts[:flags]       || 0
     data   = marshal(value, opts)
     server(key).cas(key, data, opts[:cas], expiry, flags) && value
   end
@@ -288,7 +288,7 @@ class Memcache
 
   def lock(key, opts = {})
     # Returns false if the lock already exists.
-    expiry = opts[:expiry] || LOCK_TIMEOUT
+    expiry = parse_expiry(opts) || LOCK_TIMEOUT
     add(lock_key(key), Socket.gethostname, :expiry => expiry, :raw => true)
   end
 
@@ -390,6 +390,10 @@ protected
     # nothing gets cached.  See https://github.com/memcached/memcached/wiki/Programming#expiration
     exp = opts[:expiry]
 
+    if Object.const_defined?('ActiveSupport::Duration')
+      return exp.from_now.to_i if exp.is_a?(ActiveSupport::Duration)
+    end
+
     case exp.class.to_s
     when 'NilClass'
       nil
@@ -398,9 +402,7 @@ protected
     when 'Date', 'DateTime'
       exp.to_time.to_i
     when 'Fixnum'
-      if exp.respond_to?(:from_now)  # e.g. ActiveSupport::Duration
-        exp.from_now.to_i
-      elsif exp > EXPIRY_SECONDS_LIMIT
+      if exp > EXPIRY_SECONDS_LIMIT
         raise ArgumentError.new("Expiry seconds cannot be more than 30 days!  Pass a Date, Time or Duration instead.")
       else
         exp

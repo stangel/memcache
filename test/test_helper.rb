@@ -79,3 +79,17 @@ class Test::Unit::TestCase
     end
   end
 end
+
+# simulate ActiveSupport::Duration class
+module ActiveSupport
+  class Duration
+    def initialize(seconds)
+      @seconds = seconds
+    end
+
+    def from_now
+      Time.now + @seconds
+    end
+  end
+end
+
