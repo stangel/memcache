@@ -212,9 +212,9 @@ static VALUE unescape_key(const char* str, uint16_t len) {
   }
 
   if (new_len == len) {
-    key = rb_str_new(str, len);
+    key = rb_utf8_str_new(str, len);
   } else {
-    key = rb_str_buf_new(new_len);
+    key = rb_str_buf_new(new_len);  // UTF-8 problem?
     RSTRING_SET_LEN(key, new_len);
     new_str = RSTRING_PTR(key);
 
@@ -301,7 +301,7 @@ static VALUE mc_get(int argc, VALUE *argv, VALUE self) {
       if (escaped) {
         key = unescape_key(memcached_result_key_value(mc_result), memcached_result_key_length(mc_result));
       } else {
-        key = rb_str_new(memcached_result_key_value(mc_result), memcached_result_key_length(mc_result));
+        key = rb_utf8_str_new(memcached_result_key_value(mc_result), memcached_result_key_length(mc_result));
       }
 
       if (status == MEMCACHED_SUCCESS) {

@@ -26,7 +26,15 @@ class MemcacheNativeServerTest < Test::Unit::TestCase
   def test_close
     m.close
 
-    m.set('foo', 'foo')
-    assert_equal 'foo', m.get('foo')[:value]
+    m.set('foo', 'bar')
+    assert_equal 'bar', m.get('foo')[:value]
+  end
+
+  def test_unicode_key
+    key = 'říjen'
+    m.set(key, 'bar')
+
+    results = m.get([key])
+    assert_equal 'bar', results[key][:value]
   end
 end
