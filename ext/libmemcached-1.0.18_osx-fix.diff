@@ -1,25 +1,3 @@
-diff --git a/clients/memflush.cc b/clients/memflush.cc
-index 8bd0dbf..cdba743 100644
---- a/clients/memflush.cc
-+++ b/clients/memflush.cc
-@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
- {
-   options_parse(argc, argv);
- 
--  if (opt_servers == false)
-+  if (*opt_servers != NULL)
-   {
-     char *temp;
- 
-@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
-       opt_servers= strdup(temp);
-     }
- 
--    if (opt_servers == false)
-+    if (*opt_servers != NULL)
-     {
-       std::cerr << "No Servers provided" << std::endl;
-       exit(EXIT_FAILURE);
 diff --git a/example/byteorder.cc b/example/byteorder.cc
 index fdfa021..8c03d35 100644
 --- a/example/byteorder.cc
