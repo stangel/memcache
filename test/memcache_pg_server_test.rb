@@ -5,7 +5,7 @@ class MemcachePGServerTest < Test::Unit::TestCase
   ActiveRecord::Base.establish_connection(
     :adapter  => "postgresql",
     :host     => "localhost",
-    :username => `whoami`.chomp,
+    :username => `whoami`.chomp.sub('.','_'),
     :password => "",
     :database => "memcache_test"
   )
