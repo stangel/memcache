@@ -184,7 +184,7 @@ class Memcache
       # Make sure that the response matches the protocol.
       unexpected_eof! if response.nil?
       match = response.match(regexp)
-      raise ServerError, "unexpected response: #{response.inspect}" unless match
+      raise ServerError, "unexpected response (#{self.name}): #{response.inspect}" unless match
 
       match.to_a[1, match.size]
     end
@@ -196,7 +196,7 @@ class Memcache
 
       unexpected_eof! if response.nil?
       if response =~ /^(ERROR|CLIENT_ERROR|SERVER_ERROR) (.*)\r\n/
-        raise ($1 == 'SERVER_ERROR' ? ServerError : ClientError), $2
+        raise ($1 == 'SERVER_ERROR' ? ServerError : ClientError), "#{$2} (#{self.name})"
       end
 
       block_given? ? yield(response) : response
@@ -211,7 +211,7 @@ class Memcache
       begin
         send_command(*command, &block)
       rescue Exception => e
-        puts "Memcache write error: #{e.class} #{e.to_s}"
+        puts "Memcache write error (#{self.name}): #{e.class} #{e.to_s}"
         unless retried
           retried = true
           retry
@@ -221,7 +221,7 @@ class Memcache
     end
 
     def read_command(command, &block)
-      raise ConnectionError, "Server #{name} dead, will retry at #{retry_at}" unless alive?
+      raise ConnectionError, "Server #{self.name} dead, will retry at #{retry_at}" unless alive?
       send_command(command) do |response|
         while response do
           return if response == "END\r\n"
@@ -231,7 +231,7 @@ class Memcache
         unexpected_eof!
       end
     rescue Exception => e
-      puts "Memcache read error: #{e.class} #{e.to_s}"
+      puts "Memcache read error (#{self.name}): #{e.class} #{e.to_s}"
       raise(e) if strict_reads?
     end
 
@@ -252,7 +252,7 @@ class Memcache
     end
 
     def unexpected_eof!
-      raise Error, 'unexpected end of file'
+      raise Error, "unexpected end of file (#{self.name})"
     end
   end
 end
