@@ -196,7 +196,7 @@ class Memcache
 
       unexpected_eof! if response.nil?
       if response =~ /^(ERROR|CLIENT_ERROR|SERVER_ERROR) (.*)\r\n/
-        raise ($1 == 'SERVER_ERROR' ? ServerError : ClientError), "#{$2} (#{self.name})"
+        raise ($1 == 'SERVER_ERROR' ? ServerError : ClientError), "Memcache #{$1}: #{$2}\nserver: #{self.name}\ncommand: #{command}"
       end
 
       block_given? ? yield(response) : response
