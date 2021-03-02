@@ -126,32 +126,32 @@ class Memcache
 
     def set(key, value, expiry = 0, flags = 0)
       return delete(key) if value.nil?
-      write_command("set #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.size}", value)
+      write_command("set #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.bytesize}", value)
       value
     end
 
     def cas(key, value, cas, expiry = 0, flags = 0)
-      response = write_command("cas #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.size} #{cas.to_i}", value)
+      response = write_command("cas #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.bytesize} #{cas.to_i}", value)
       response == "STORED\r\n" ? value : nil
     end
 
     def add(key, value, expiry = 0, flags = 0)
-      response = write_command("add #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.size}", value)
+      response = write_command("add #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.bytesize}", value)
       response == "STORED\r\n" ? value : nil
     end
 
     def replace(key, value, expiry = 0, flags = 0)
-      response = write_command("replace #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.size}", value)
+      response = write_command("replace #{cache_key(key)} #{flags.to_i} #{expiry.to_i} #{value.to_s.bytesize}", value)
       response == "STORED\r\n" ? value : nil
     end
 
     def append(key, value)
-      response = write_command("append #{cache_key(key)} 0 0 #{value.to_s.size}", value)
+      response = write_command("append #{cache_key(key)} 0 0 #{value.to_s.bytesize}", value)
       response == "STORED\r\n"
     end
 
     def prepend(key, value)
-      response = write_command("prepend #{cache_key(key)} 0 0 #{value.to_s.size}", value)
+      response = write_command("prepend #{cache_key(key)} 0 0 #{value.to_s.bytesize}", value)
       response == "STORED\r\n"
     end
 
@@ -168,7 +168,7 @@ class Memcache
     UNESCAPE = ESCAPE.invert
 
     def input_key(key)
-      key = key[prefix.size..-1] if prefix # Remove prefix from key.
+      key = key[prefix.bytesize..-1] if prefix # Remove prefix from key.
       key = key.gsub(/\\./) {|c| UNESCAPE[c]}
       key
     end

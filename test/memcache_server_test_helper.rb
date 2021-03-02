@@ -41,6 +41,11 @@ module MemcacheServerTestHelper
     assert_equal 'bar', m.get('2')[:value]
   end
 
+  def test_set_handles_multibyte_value
+    expected = "Малое_Колпино"
+    assert_equal expected, m.set('2', expected, 0)
+  end
+
   def test_spaces_in_keys
     assert_equal '1', m.set('foo bar', '1', 0)
 
