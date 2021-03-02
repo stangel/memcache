@@ -190,7 +190,7 @@ class Memcache
     end
 
     def send_command(*command)
-      command = command.join("\r\n")
+      command = command.map{|ii| ii.to_s.force_encoding('BINARY')}.join("\r\n")
       socket.write("#{command}\r\n")
       response = socket.gets
 
