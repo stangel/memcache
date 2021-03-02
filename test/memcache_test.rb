@@ -214,8 +214,7 @@ class MemcacheTest < Test::Unit::TestCase
       m.set("foo", "bar", :expiry => 31557600)  # same as 1.year.to_i
     end
 
-    one_year = 31557600
-    m.set("foo", "bar", :expiry => ActiveSupport::Duration.new(one_year))  # ActiveSupport::Duration ok
+    m.set("foo", "bar", :expiry => 1.year)  # ActiveSupport::Duration ok
     assert_equal 'bar', m.get("foo")
   end
 

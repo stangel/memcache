@@ -13,10 +13,12 @@ rescue Bundler::GemNotFound
   raise RuntimeError, "Bundler couldn't find some gems.\nDid you run `bundle install`?"
 end
 
-
 require 'pp'
 require 'test/unit'
 require 'turn/autorun/testunit'
+
+# Load ActiveSupport::Duration and core extensions
+require 'active_support/time'
 
 $:.unshift(File.expand_path('../../lib', __FILE__))
 require 'memcache'
@@ -79,17 +81,3 @@ class Test::Unit::TestCase
     end
   end
 end
-
-# simulate ActiveSupport::Duration class
-module ActiveSupport
-  class Duration
-    def initialize(seconds)
-      @seconds = seconds
-    end
-
-    def from_now
-      Time.now + @seconds
-    end
-  end
-end
-
