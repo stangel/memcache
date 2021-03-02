@@ -7,8 +7,13 @@ require 'memcache/local_server'
 begin
   require 'memcache/native_server'
 rescue LoadError => e
-  puts "memcache is not using native bindings. for faster performance, compile extensions by hand or install as a local gem."
+  puts "memcache is not using native bindings."
+  puts "For faster performance, compile extensions by hand or install as a local gem."
+  # Sometimes ruby can't find a dependent .so file (eg libmemcached.so.11).
+  # The error message will tell us which file ruby couldn't find.
+  puts "Cause:\n\t#{e.message}\n"
 end
+
 require 'memcache/segmented'
 
 class Memcache
