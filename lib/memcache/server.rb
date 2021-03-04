@@ -238,7 +238,7 @@ class Memcache
     def socket
       if @socket.nil? or @socket.closed?
         # Attempt to connect.
-        @socket = timeout(CONNECT_TIMEOUT) do
+        @socket = Timeout.timeout(CONNECT_TIMEOUT) do
           TCPSocket.new(host, port)
         end
         if Socket.constants.include? 'TCP_NODELAY'
