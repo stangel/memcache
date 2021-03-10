@@ -283,7 +283,9 @@ class Memcache
           set(key, value, {}) unless opts[:disable] or opts[:disable_write]
         rescue Memcache::Error => e
           raise if opts[:strict_write]
-          $stderr.puts "Memcache error in get_some: #{e.class} #{e.to_s} on key '#{key}' while storing value: #{value}"
+          key = key.dup.force_encoding('BINARY' )
+          msg = "Memcache error in get_some: #{e.class} #{e.to_s} on key '#{key}' while storing value: #{value}"
+          $stderr.puts msg
         end
         results[key] = opts[:meta] ? {:value => value} : value
       end
@@ -468,6 +470,7 @@ protected
     return value if value.nil?
     Marshal.load(value)
   rescue Exception => e
+    key = key.dup.force_encoding('BINARY' )
     msg = "Memcache read error: #{e.class} #{e.to_s} on key '#{key}' while unmarshalling value: #{value}"
     $stderr.puts msg, caller
     delete(key)
