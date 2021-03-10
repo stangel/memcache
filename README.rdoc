@@ -235,6 +235,12 @@ NativeServer also accepts a few other options:
 
   $ sudo gem install memcache --source http://gemcutter.org
 
+== Development
+
+=== Testing
+
+  rake test runs all the tests.
+
 == License:
 
 Copyright (c) 2010 Justin Balthrop, Geni.com; Published under The MIT License, see the LICENSE file.
