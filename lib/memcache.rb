@@ -308,9 +308,12 @@ class Memcache
       return if opts[:ignore]
       sleep(WRITE_LOCK_WAIT) # just wait
     end
-    yield
-  ensure
-    unlock(key) unless opts[:keep]
+
+    begin
+      yield
+    ensure
+      unlock(key) unless opts[:keep]
+    end
   end
 
   def lock_key(key)
