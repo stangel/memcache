@@ -278,4 +278,64 @@ class MemcacheTest < Test::Unit::TestCase
       assert_equal i, m.get(i, :raw => true)
     end
   end
+
+  def test_with_lock_no_contention
+    count = 0
+    delay = 2 # seconds
+
+    m.with_lock('foo') { count += 1 ; sleep delay}
+    m.with_lock('foo') { count += 1 }
+
+    assert_equal  2, count
+    assert        ! m.locked?('foo')
+  end
+
+  def test_with_lock_with_contention
+    times = []
+    delay = 2 # seconds
+
+    threads = [
+      Thread.new { m.with_lock('foo') { times << Time.now ; sleep delay} },
+      Thread.new { m.with_lock('foo') { times << Time.now ; sleep delay} },
+    ].each { |ii| ii.join }
+    time_difference = times[1] - times[0]
+
+    assert_operator time_difference, :>=, delay
+    assert          ! m.locked?('foo')
+  end
+
+  def test_with_lock_with_ignore
+    count = 0
+    delay = 2
+
+    threads = [
+      Thread.new { m.with_lock('foo', :ignore => true) { count += 1 ; sleep delay} },
+      Thread.new { m.with_lock('foo', :ignore => true) { count += 1 ; sleep delay} },
+    ].each { |ii| ii.join }
+
+    assert_equal  1, count
+    assert        ! m.locked?('foo')
+  end
+
+  def test_with_lock_with_keep
+    count = 0
+
+    m.with_lock('foo', :keep => true) { count += 1}
+
+    assert_equal  1, count
+    assert        m.locked?('foo')
+  end
+
+  def test_with_lock_unlocks_return_from_block
+    count = 0
+
+    m.with_lock('foo') { count += 1 ; return }
+    got_here = true
+
+  ensure
+    assert_nil    got_here, 'return from block should skip rest of test'
+    assert_equal  1, count
+    assert        ! m.locked?('foo')
+  end
+
 end
