@@ -241,6 +241,13 @@ NativeServer also accepts a few other options:
 
   rake test runs all the tests.
 
+  if you're not security conscious, you can do the following:
+
+  ```sh
+    export MEMCACHE_TEST_USER=postgres
+    rake test
+  ```
+
 == License:
 
 Copyright (c) 2010 Justin Balthrop, Geni.com; Published under The MIT License, see the LICENSE file.
