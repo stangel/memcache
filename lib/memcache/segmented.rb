@@ -28,14 +28,19 @@ class Memcache
           if part and part[:value]
             value << part[:value]
           else
-            value = nil
+            value = :missing_part
             break
           end
         end
 
-        results[key][:value] = value
-        results[key][:flags] ^= PARTIAL_VALUE
+        if value == :missing_part
+          results.delete(key)
+        else
+          results[key][:value] = value
+          results[key][:flags] ^= PARTIAL_VALUE
+        end
       end
+
       results
     end
 
