@@ -304,7 +304,7 @@ class Memcache
   end
 
   def with_lock(key, opts = {})
-    until lock(key) do
+    until lock(key, opts) do
       return if opts[:ignore]
       sleep(WRITE_LOCK_WAIT) # just wait
     end
