@@ -324,7 +324,7 @@ class Memcache
     get(lock_key(key), :raw => true)
   end
 
-  def delete(key)
+  def delete(key, opts = nil)
     key = key.to_s
     backup.delete(key) if backup
     server(key).delete(key)
