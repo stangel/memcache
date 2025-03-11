@@ -1,4 +1,4 @@
-= memcache
+g memcache
 
 This is the Geni memcached client. It started out as a fork of fiveruns/memcache-client,
 which was a fork of seattle.rb's memcache-client, but over time, our client has diverged,
@@ -250,6 +250,6 @@ NativeServer also accepts a few other options:
 
 == License:
 
-Copyright (c) 2010 Justin Balthrop, Geni.com; Published under The MIT License, see the LICENSE file.
+Copyright (c) 2025 Geni.com; Published under The MIT License, see the LICENSE file.
 
 ext/extconf.rb Copyright (c) 2010 Cloudburst, LLC, licensed under the AFL3 license, and used with permission; see the ext/LICENSE_AFL3 file.
