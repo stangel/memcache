@@ -61,6 +61,7 @@ class Memcache
     def cache_key(key)
       raise Memcache::Error, "length zero key not permitted" if key.length == 0
       key = "#{prefix}#{key}"
+      key = (Digest::MD5::new << key).hexdigest if key.length > 250
       raise Memcache::Error, "key too long #{key.inspect}" if key.length > 250
       key
     end
