@@ -45,7 +45,7 @@ class Memcache
     def set(key, value, expiry = nil, flags = 0)
       key = cache_key(key)
       @data[key] = {:value => value.to_s, :flags => flags}
-      expiry = Time.at(expiry) if expiry && expiry > 60*60*24*30
+      expiry = Time.at(expiry) if expiry && expiry > Memcache::Base::EXPIRY_30DAYS
       expiry ||= @expiry[key]
       if expiry.kind_of?(Time)
         @expiry[key] = expiry

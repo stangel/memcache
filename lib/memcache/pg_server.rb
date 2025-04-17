@@ -171,7 +171,7 @@ class Memcache
     end
 
     def expiry_sql(expiry)
-      expiry = Time.at(expiry) if expiry > 60*60*24*30
+      expiry = Time.at(expiry) if expiry > Memcache::Base::EXPIRY_30DAYS
       if expiry.kind_of?(Time)
         quote(expiry.to_s(:db))
       else

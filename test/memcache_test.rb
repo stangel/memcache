@@ -304,6 +304,22 @@ class MemcacheTest < Test::Unit::TestCase
     assert          ! m.locked?('foo')
   end
 
+  def test_with_lock_reentrant
+    called = false
+
+    start_time = Time.now.to_f
+    m.with_lock('foo') do
+      m.with_lock('foo') do
+        called = true
+      end
+    end
+    end_time  = Time.now.to_f
+    lock_time = end_time - start_time
+
+    assert called
+    assert lock_time < 1
+  end
+
   def test_with_lock_with_ignore
     count = 0
     delay = 2

@@ -4,6 +4,10 @@ class Memcache
   class Base
     attr_accessor :prefix
 
+    # expiry less than 30 days is assumed to be in seconds
+    # expiry greater than 30 days (in seconds) is assumed to be Time.at
+    EXPIRY_30DAYS = 60*60*24*30
+
     def clear
       flush_all
     end

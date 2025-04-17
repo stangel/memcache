@@ -296,10 +296,17 @@ class Memcache
   def lock(key, opts = {})
     # Returns false if the lock already exists.
     expiry = parse_expiry(opts) || LOCK_TIMEOUT
-    add(lock_key(key), Socket.gethostname, :expiry => expiry, :raw => true)
+
+    # Re-entrant locking is immediate but does not reset outer expiry
+    return true if reentrant_lock?(key)
+
+    add(lock_key(key), Socket.gethostname, :expiry => expiry, :raw => true).tap do |result|
+      record_lock(key, expiry) if result
+    end
   end
 
   def unlock(key)
+    record_lock(key, :delete)
     delete(lock_key(key))
   end
 
@@ -486,6 +493,46 @@ protected
     key = "#{namespace}:#{key}" if @hash_with_prefix and namespace
     hash = (Zlib.crc32(key) >> 16) & 0x7fff
     servers[hash % servers.length]
+  end
+
+  def record_lock(key, expiry)
+    Thread.current['Memcache:locks'] ||= {}
+
+    val = Thread.current['Memcache:locks'][key]
+
+    if expiry == :delete
+      if val && val[0] > 1
+        val[0] = val[0] - 1 # refcount
+        Thread.current['Memcache:locks'][key] = val
+        elsif val
+        Thread.current['Memcache:locks'].delete(key)
+      end
+    else
+      val ||= [0, expiry_time(expiry)]
+      val[0] = val[0] + 1 # refcount
+      Thread.current['Memcache:locks'][key] = val
+    end
+  end
+
+  def reentrant_lock?(key)
+    Thread.current['Memcache:locks'] ||= {}
+    val = Thread.current['Memcache:locks'][key]
+    return false if val.nil?
+    return false if Time.now > val.last  # expired
+
+    val[0] = val[0] + 1  # refcount
+    Thread.current['Memcache:locks'][key] = val
+
+    true
+  end
+
+  def expiry_time(expiry)
+    return expiry         if expiry.nil?
+    return expiry         if expiry.kind_of?(Time)
+    return expiry.to_time if expiry.kind_of?(Date)
+    return expiry         if expiry > Memcache::Base::EXPIRY_30DAYS
+
+    Time.now + expiry
   end
 
   class Pool
