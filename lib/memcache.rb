@@ -378,7 +378,7 @@ class Memcache
   def self.init(yaml_file = nil)
     yaml_file ||= File.join(Rails.root, 'config', 'memcached.yml')
 
-    if File.exists?(yaml_file)
+    if File.exist?(yaml_file)
       yaml = YAML.load_file(yaml_file)
       defaults = (yaml.delete('defaults') || {}).symbolize_keys
       config   = (yaml[Rails.env] || {}).symbolize_keys

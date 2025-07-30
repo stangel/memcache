@@ -68,7 +68,7 @@ if !ENV["EXTERNAL_LIB"]
   end
 
   # Absolutely prevent the linker from picking up any other libmemcached
-  if File.exists?("#{HERE}/lib/amd64/libmemcached.a")
+  if File.exist?("#{HERE}/lib/amd64/libmemcached.a")
     # fix linking issue under solaris
     # https://github.com/ninjudd/memcache/issues/5
     copy_gem('/lib/amd64')
