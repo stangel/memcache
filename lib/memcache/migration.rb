@@ -1,5 +1,5 @@
 class Memcache
-  class Migration < ActiveRecord::Migration
+  class Migration < ActiveRecord::Migration[8.0]
     class << self
       attr_accessor :table
     end

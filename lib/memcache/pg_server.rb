@@ -90,7 +90,7 @@ class Memcache
       delete_expired(key)
       insert(key, value, expiry, flags)
       value
-    rescue PGError => e
+    rescue PG::Errorkkkk
       nil
     end
 
@@ -173,7 +173,7 @@ class Memcache
     def expiry_sql(expiry)
       expiry = Time.at(expiry) if expiry > Memcache::Base::EXPIRY_30DAYS
       if expiry.kind_of?(Time)
-        quote(expiry.to_s(:db))
+        quote(expiry.to_fs(:db))
       else
         expiry == 0 ? 'NULL' : "'#{now}'::timestamp + interval '#{expiry} seconds'"
       end
@@ -188,7 +188,7 @@ class Memcache
     end
 
     def now
-      Time.now.to_s(:db)
+      Time.now.to_fs(:db)
     end
 
   end

@@ -1,4 +1,4 @@
-require 'test/unit'
+require_relative 'memcache_server_test_helper'
 require 'memcache/base'
 require 'memcache/null_server'
 

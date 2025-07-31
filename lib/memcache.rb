@@ -408,7 +408,7 @@ protected
     exp = opts[:expiry]
 
     if Object.const_defined?('ActiveSupport::Duration')
-      return exp.from_now.to_i if exp.is_a?(ActiveSupport::Duration)
+      return (Time.now + exp).to_i if exp.is_a?(ActiveSupport::Duration)
     end
 
     case exp.class.to_s
@@ -418,7 +418,7 @@ protected
       exp.to_i
     when 'Date', 'DateTime'
       exp.to_time.to_i
-    when 'Fixnum'
+    when 'Integer'
       if exp > EXPIRY_SECONDS_LIMIT
         raise ArgumentError.new("Expiry seconds cannot be more than 30 days!  Pass a Date, Time or Duration instead.")
       else
@@ -504,7 +504,7 @@ protected
       if val && val[0] > 1
         val[0] = val[0] - 1 # refcount
         Thread.current['Memcache:locks'][key] = val
-        elsif val
+      elsif val
         Thread.current['Memcache:locks'].delete(key)
       end
     else
