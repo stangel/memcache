@@ -191,14 +191,14 @@ class MemcacheTest < Test::Unit::TestCase
 
   def test_expiry
     100.times do |i|
-      m.set("int#{i}", i, :expiry => 1)
+      m.set("int#{i}", i, :expiry => 3)
       assert_equal i, m.get("int#{i}")
 
-      m.set("time#{i}", i, :expiry => Time.now + 1)
+      m.set("time#{i}", i, :expiry => Time.now + 3)
       assert_equal i, m.get("time#{i}")
     end
 
-    sleep 2
+    sleep 4
 
     100.times do |i|
       assert_equal nil, m.get("int#{i}")

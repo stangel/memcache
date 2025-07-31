@@ -10,7 +10,7 @@ class MemcachePGServerTest < Test::Unit::TestCase
     :database => "memcache_test"
   )
   ActiveRecord::Migration.verbose = false
-  ActiveRecord::Base.connection.client_min_messages = 'panic'
+  ActiveRecord::Base.connection.client_min_messages = 'error'
 
   include MemcacheServerTestHelper
 
