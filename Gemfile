@@ -10,6 +10,6 @@ group :development do
   gem 'ostruct',      '~>0.6'
   gem 'pg',           '~>1.6'
   gem 'rake'
-  gem 'test-unit',    '1.2.3'
+  gem 'test-unit',    '~>3.7'
   gem 'turn',         '0.8.3'
 end

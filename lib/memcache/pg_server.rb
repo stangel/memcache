@@ -90,7 +90,7 @@ class Memcache
       delete_expired(key)
       insert(key, value, expiry, flags)
       value
-    rescue PG::Errorkkkk
+    rescue PG::Error
       nil
     end
 
@@ -126,7 +126,7 @@ class Memcache
       db.exec %{
         INSERT INTO #{table} (prefix, key, value, flags, updated_at, expires_at)
           VALUES (#{quoted_prefix}, #{quote(key)}, #{quote(value)}, #{flags.to_i}, #{quote(now)}, #{expiry_sql(expiry)})
-      }.tap {|sql| pp [:sql, sql]}
+      }
     end
 
     def update(key, value, expiry, flags)
