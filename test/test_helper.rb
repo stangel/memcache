@@ -15,7 +15,6 @@ end
 
 require 'pp'
 require 'test/unit'
-require 'turn/autorun/testunit'
 
 # Load ActiveSupport::Duration and core extensions
 require 'active_support/time'
