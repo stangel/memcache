@@ -504,7 +504,7 @@ protected
       if val && val[0] > 1
         val[0] = val[0] - 1 # refcount
         Thread.current['Memcache:locks'][key] = val
-        elsif val
+      elsif val
         Thread.current['Memcache:locks'].delete(key)
       end
     else
