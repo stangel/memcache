@@ -1,0 +1,24 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "analyze file",
+      "type": "shell",
+      "command": "ruby -c ${file}",
+      "presentation": {
+        "clear": true,
+      }
+    },{
+      "label": "run debuggable console",
+      "group": "test",
+      "type": "shell",
+      "command": "bundle exec rdbg --open -c -- irb -r irb/completion -r ${workspaceFolder}/config/environment -r console_app -r console_with_helpers --simple-prompt",
+      "problemMatcher": [],
+      "presentation": {
+        "clear": true,
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // execute the 'run debuggable console' task first
+      "name": "Attach to running process",
+      "type": "rdbg",
+      "request": "attach",
+    },
+  ]
+}
