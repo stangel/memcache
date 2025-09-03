@@ -1,6 +1,7 @@
 pkg
 *~
 *.bundle
+.bash_history
 *.so
 *.o
 Gemfile.lock
@@ -12,4 +13,4 @@ ext/bin
 ext/lib
 ext/share
 ext/include
-bundler
+vendor
