@@ -17,6 +17,7 @@ require 'pp'
 require 'test/unit'
 
 # Load ActiveSupport::Duration and core extensions
+require 'active_support/isolated_execution_state'
 require 'active_support/time'
 
 $:.unshift(File.expand_path('../../lib', __FILE__))

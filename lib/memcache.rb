@@ -387,14 +387,14 @@ protected
       return exp.from_now.to_i if exp.is_a?(ActiveSupport::Duration)
     end
 
-    case exp.class.to_s
-    when 'NilClass'
+    case exp
+    when NilClass
       nil
-    when 'Time'
+    when Time
       exp.to_i
-    when 'Date', 'DateTime'
+    when Date, DateTime
       exp.to_time.to_i
-    when 'Fixnum'
+    when Integer
       if exp > EXPIRY_SECONDS_LIMIT
         raise ArgumentError.new("Expiry seconds cannot be more than 30 days!  Pass a Date, Time or Duration instead.")
       else
