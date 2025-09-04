@@ -1,11 +1,8 @@
 source "http://www.rubygems.org"
 
 group :development do
-  gem 'activerecord', '~>8.0.0'
-  gem 'mocha'
-  gem 'pg'
+  gem 'activesupport', '~>8.0.0'
   gem 'test-unit'
-#  gem 'turn'
 end
 
 group :vscode do

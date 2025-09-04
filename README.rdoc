@@ -119,12 +119,6 @@ alternate backend server implementations. Right now, there are three basic, alte
                 application, you can use this as a quick cache which lasts for the
                 duration of a request.
 
-[+PGServer+] This is an implementation of memcached functionality using SQL. It stores all
-             data in a single postgres table and uses +PGconn+ to select and update this
-             table. This works well as a permanent cache or in the case when your objects
-             are very large. It can also be used in a multi-level cache setup with
-             <tt>Memcache::Server</tt> to provide persistence without sacrificing speed.
-
 === Very Large Values
 
 Memcached limits the size of values to 1MB. This is done to reduce memory usage, but it
@@ -195,8 +189,8 @@ hashing with the following option:
   if you're not security conscious, you can do the following:
 
   ```sh
-    export MEMCACHE_TEST_USER=postgres
-    rake test
+    export TEST_OPTS="--verbose --no-show-detail-immediately"
+    bundle exec rake test
   ```
 
 == License:

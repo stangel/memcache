@@ -17,7 +17,6 @@
       "command": "bundle exec ruby ${file}",
       "options": {
         "env": {
-          "MEMCACHE_TEST_USER": "postgres",
           "TEST_OPTS": "--verbose --no-show-detail-immediately",
         },
       },

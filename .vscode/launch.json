@@ -8,7 +8,6 @@
       "useBundler": true,
       "script": "${file}",
       "env": {
-        "MEMCACHE_TEST_USER": "postgres",
         "TEST_OPTS": "--verbose --no-show-detail-immediately",
       },
       "askParameters": false
