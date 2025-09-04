@@ -1,11 +1,21 @@
 {
   "version": "0.2.0",
   "configurations": [
-    {
-      // execute the 'run debuggable console' task first
-      "name": "Attach to running process",
+   {
+      "name": "Debug tests in file",
       "type": "rdbg",
-      "request": "attach",
-    },
+      "request": "launch",
+      "useBundler": true,
+      "script": "${file}",
+      "env": {
+        "MEMCACHE_TEST_USER": "postgres",
+        "TEST_OPTS": "--verbose --no-show-detail-immediately",
+      },
+      "askParameters": false
+    },{
+      "type": "rdbg",
+      "name": "Attach to running process",
+      "request": "attach"
+    }
   ]
 }

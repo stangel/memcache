@@ -11,13 +11,19 @@
         "clear": true,
       }
     },{
-      "label": "run debuggable console",
+      "label": "run all tests in file",
       "group": "test",
       "type": "shell",
-      "command": "bundle exec rdbg --open -c -- irb -r irb/completion -r ${workspaceFolder}/config/environment -r console_app -r console_with_helpers --simple-prompt",
+      "command": "bundle exec ruby ${file}",
+      "options": {
+        "env": {
+          "MEMCACHE_TEST_USER": "postgres",
+          "TEST_OPTS": "--verbose --no-show-detail-immediately",
+        },
+      },
       "problemMatcher": [],
       "presentation": {
-        "clear": true,
+        "clear": true
       }
     }
   ]
