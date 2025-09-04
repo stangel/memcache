@@ -104,21 +104,11 @@ puts "Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL}"
 
 ns = 'namespace'
 memcache      = init_servers(10000,10001) {|s| Memcache.new(:servers => s, :namespace => ns)}
-native        = init_servers(10002,10003) {|s| Memcache.new(:servers => s, :namespace => ns, :native => true)}
-native_nowrap = init_servers(10004,10005) {|s| Memcache::NativeServer.new(:servers => s, :prefix => "#{ns}:")}
 
 b = MemcacheBench.new(:num_items => 5000, :n => 100_000, :key_length => 20, :val_length => 100)
 
 2.times do
-  ___
-  b.bench( 'set:native-nowrap'      ) {|key, val| native_nowrap.set(key, val) }
-  b.bench( 'get:native-nowrap'      ) {|key     | native_nowrap.get(key)      }
-  b.bench( 'get:native-nowrap', 100 ) {|keys    | native_nowrap.get(keys)     }
-  ___
-  b.bench( 'set:native'      ) {|key, val| native.set(key, val, :raw => true) }
-  b.bench( 'get:native'      ) {|key     | native.get(key,      :raw => true) }
-  b.bench( 'get:native', 100 ) {|keys    | native.get(keys,     :raw => true) }
-  ___
+ ___
   b.bench( 'set:ruby'      ) {|key, val| memcache.set(key, val, :raw => true) }
   b.bench( 'get:ruby'      ) {|key     | memcache.get(key,      :raw => true) }
   b.bench( 'get:ruby', 100 ) {|keys    | memcache.get(keys,     :raw => true) }

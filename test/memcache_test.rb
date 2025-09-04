@@ -268,17 +268,6 @@ class MemcacheTest < Test::Unit::TestCase
                      c.servers.collect {|s| s.send(:socket)}
   end
 
-  def test_native_hashing
-    n = Memcache.new(:servers => PORTS.collect {|p| "localhost:#{p}"}, :native => true)
-    n.namespace = m.namespace
-
-    1000.times do |i|
-      i = i.to_s
-      n.set(i, i, :raw => true)
-      assert_equal i, m.get(i, :raw => true)
-    end
-  end
-
   def test_with_lock_no_contention
     count = 0
     delay = 2 # seconds

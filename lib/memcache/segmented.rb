@@ -127,9 +127,4 @@ class Memcache
     include Memcache::Segmented
   end
 
-  if defined?(NativeServer)
-    class SegmentedNativeServer < NativeServer
-      include Memcache::Segmented
-    end
-  end
 end

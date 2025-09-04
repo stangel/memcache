@@ -125,9 +125,6 @@ alternate backend server implementations. Right now, there are three basic, alte
              are very large. It can also be used in a multi-level cache setup with
              <tt>Memcache::Server</tt> to provide persistence without sacrificing speed.
 
-[+NativeServer+] This implementation uses native bindings to libmemcached. It is described
-                 in more detail in the "Native Bindings" section below.
-
 === Very Large Values
 
 Memcached limits the size of values to 1MB. This is done to reduce memory usage, but it
@@ -174,8 +171,7 @@ possible because the backend transparently enscapes all space characters, and is
 especially important if you are using method_cache[http://github.com/ninjudd/method_cache]
 or record_cache[http://github.com/ninjudd/record_cache]. <tt>Memcache::Server</tt> implements
 this escaping using gsub and it adds a slight performance penalty when escaping is
-necessary. +NativeServer+ implements this escaping directly in C, and the performance
-overhead is negligible.
+necessary.
 
 You can also partition your keys into different namespaces for convenience. This is done
 by prefixing all keys in the backend server with "namespace:". However, the hash keys
@@ -185,51 +181,6 @@ hashing with the following option:
 
 [+hash_with_prefix+] Determines whether the prefix/namespace is used when hashing keys to
                      determine which server to use. Defaults to true.
-
-== Native Bindings
-
-The <tt>Memcache::NativeServer</tt> backend provides native bindings to libmecached. This is
-significantly faster than using <tt>Memcache::Server</tt> as demonstrated by runnning
-bench/benchmark.rb. NativeServer encapsulates a set of remote servers and allows you to
-use the various hashing methods in libmemcached.
-
-You can use native bindings either by passing +NativeServer+ objects to +Memcache+, or you
-can use the +native+ option. Native bindings are compatible with segmented values through
-the +SegmentedNativeServer+ object or by combining the +native+ option with
-+segment_large_values+.
-
- server = Memcache::NativeServer.new(:servers => ['localhost:11211', 'localhost:11212'])
- cache = Memcache.new(:server => server)
-
- cache = Memcache.new(:servers => ['localhost:11211', 'localhost:11212'], :native => true)
-
-NativeServer also accepts a few other options:
-
-[+hash+] The libmemcached hashing method. See http://docs.tangent.org/libmemcached/index.html
-         for more detail. One of:
-
-         <tt>:default :md5 :crc :fnv1_64 :fnv1a_64 :fnv1_32 :fnv1a_32 :jenkins
-         :hsieh :murmur</tt>.
-
-         NOTE: Even though there is a libmemcached method named <tt>:default</tt> (which
-         is actually Jenkins's one-at-a-time hash), the default hashing method if you
-         don't specify one is <tt>:crc</tt>.
-
-[+distribution+] The libmemcached distribution method. See http://docs.tangent.org/libmemcached/index.html
-                 for more detail. One of:
-
-                 <tt>:modula :consistent :ketama :ketama_spy</tt>
-
-                 NOTE: <tt>:modula</tt> is the default. internally, <tt>:consistent</tt>
-                 is an alias for <tt>:ketama</tt>, and <tt>:ketama_spy</tt> provides
-                 compatibility with the SPY Memcached client for Java.
-
-[+ketama+] Sets the default distribution to <tt>:ketama</tt> and hash to <tt>:md5</tt>.
-
-[+ketama_wieghted+] Enables ketama weighting and sets the default distribution to <tt>:ketama</tt> and hash to <tt>:md5</tt>.
-
-[+binary+] A boolean value specifying whether to use memcached's binary protocol instead
-           of the default ascii protocol. This is slightly slower, but should allow you to use unicode keys.
 
 == Installation
 

@@ -4,16 +4,6 @@ $:.unshift(File.dirname(__FILE__))
 require 'memcache/base'
 require 'memcache/server'
 require 'memcache/local_server'
-begin
-  require 'memcache/native_server'
-rescue LoadError => e
-  puts "memcache is not using native bindings."
-  puts "For faster performance, compile extensions by hand or install as a local gem."
-  # Sometimes ruby can't find a dependent .so file (eg libmemcached.so.11).
-  # The error message will tell us which file ruby couldn't find.
-  puts "Cause:\n\t#{e.message}\n"
-end
-
 require 'memcache/segmented'
 
 class Memcache
@@ -43,34 +33,20 @@ class Memcache
     @backup           = opts[:backup] # for multi-level caches
     @hash_with_prefix = opts[:hash_with_prefix].nil? ? true : opts[:hash_with_prefix]
 
-    if opts[:native]
-      native_opts = opts.clone
-      native_opts[:servers] = (opts[:servers] || [ opts[:server] ]).collect do |server|
-        server.is_a?(Hash) ? "#{server[:host]}:#{server[:port]}:#{server[:weight]}" : server
+    server_class = opts[:segment_large_values] ? SegmentedServer : Server
+    @servers = (opts[:servers] || [ opts[:server] ]).collect do |server|
+      case server
+      when Hash
+        server = server_class.new(opts.merge(server))
+      when String
+        host, port = server.split(':')
+        server = server_class.new(opts.merge(:host => host, :port => port))
+      when Class
+        server = server.new
+      when :local
+        server = Memcache::LocalServer.new
       end
-      native_opts[:hash] ||= :crc unless native_opts[:ketama] or native_opts[:ketama_wieghted]
-      native_opts[:hash_with_prefix] = @hash_with_prefix
-
-      server_class = opts[:segment_large_values] ? SegmentedNativeServer : NativeServer
-      @servers = [server_class.new(native_opts)]
-    else
-      raise "only CRC hashing is supported unless :native => true" if opts[:hash] and opts[:hash] != :crc
-
-      server_class = opts[:segment_large_values] ? SegmentedServer : Server
-      @servers = (opts[:servers] || [ opts[:server] ]).collect do |server|
-        case server
-        when Hash
-          server = server_class.new(opts.merge(server))
-        when String
-          host, port = server.split(':')
-          server = server_class.new(opts.merge(:host => host, :port => port))
-        when Class
-          server = server.new
-        when :local
-          server = Memcache::LocalServer.new
-        end
-        server
-      end
+      server
     end
 
     @server = @servers.first if @servers.size == 1 and @backup.nil?
