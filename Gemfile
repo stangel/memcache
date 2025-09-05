@@ -2,14 +2,17 @@ source "http://www.rubygems.org"
 
 group :development do
   gem 'activerecord', '~>8.0'
-  gem 'activerecord-postgresql-adapter'
-  gem 'base64'
-  gem 'bigdecimal'
-  gem 'mocha',        '0.9.10', :require => false
-  gem 'mutex_m'
-  gem 'ostruct',      '~>0.6'
-  gem 'pg',           '~>1.6'
+  gem 'pg', '~>1.5.0' # 1.6 requires GLIBC 2.29 which CentOS 8 Stream doesn't have
   gem 'rake'
-  gem 'test-unit',    '~>3.7'
-  gem 'turn',         '0.8.3'
+  gem 'test-unit'
+end
+
+group :vscode do
+  gem 'debase',           :require => false
+  gem 'debug',            :require => false
+  gem 'rainbow',          :require => false
+  gem 'rdbg',             :require => false
+  gem 'ruby-debug-ide',   :require => false
+  gem 'ruby-lsp',         :require => false
+  gem 'solargraph',       :require => false
 end

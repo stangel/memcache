@@ -1,3 +1,4 @@
+.bash_history
 pkg
 *~
 *.bundle
@@ -12,4 +13,4 @@ ext/bin
 ext/lib
 ext/share
 ext/include
-bundler
+vendor/

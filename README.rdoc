@@ -239,13 +239,14 @@ NativeServer also accepts a few other options:
 
 === Testing
 
-  rake test runs all the tests.
+  bundle exec rake test runs all the tests.
 
   if you're not security conscious, you can do the following:
 
   ```sh
     export MEMCACHE_TEST_USER=postgres
-    rake test
+    export TEST_OPTS="--verbose --no-show-detail-immediately"
+    bundle exec rake test
   ```
 
 == License:

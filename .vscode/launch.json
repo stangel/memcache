@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+   {
+      "name": "Debug tests in file",
+      "type": "rdbg",
+      "request": "launch",
+      "useBundler": true,
+      "script": "${file}",
+      "env": {
+        "TEST_OPTS": "--verbose --no-show-detail-immediately",
+      },
+      "askParameters": false
+    },{
+      "type": "rdbg",
+      "name": "Attach to running process",
+      "request": "attach"
+    }
+  ]
+}

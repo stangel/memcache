@@ -1,0 +1,29 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "analyze file",
+      "type": "shell",
+      "command": "ruby -c ${file}",
+      "presentation": {
+        "clear": true,
+      }
+    },{
+      "label": "run all tests in file",
+      "group": "test",
+      "type": "shell",
+      "command": "bundle exec ruby ${file}",
+      "options": {
+        "env": {
+          "TEST_OPTS": "--verbose --no-show-detail-immediately",
+        },
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "clear": true
+      }
+    }
+  ]
+}

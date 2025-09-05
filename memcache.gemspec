@@ -4,8 +4,8 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |gem|
   gem.name          = "memcache"
   gem.version       = IO.read('VERSION')
-  gem.authors       = ["Justin Balthrop"]
-  gem.email         = ["git@justinbalthrop.com"]
+  gem.authors       = ["Justin Balthrop", "Mike Stangel", "Scott Steadman"]
+  gem.email         = ["git@justinbalthrop.com", "mike.stangel@geni.com","scott.steadman@geni.com"]
   gem.description   = %q{Ruby client for memcached supporting advanced protocol features and pluggable architecture.}
   gem.summary       = gem.description
   gem.homepage      = "https://github.com/ninjudd/memcache"
