@@ -1,7 +1,6 @@
 .bash_history
 pkg
 *~
-*.bundle
 *.so
 *.o
 Gemfile.lock
