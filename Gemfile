@@ -2,6 +2,7 @@ source "http://www.rubygems.org"
 
 group :development do
   gem 'activesupport', '~>8.0.0'
+  gem 'rake'
   gem 'test-unit'
 end
 
