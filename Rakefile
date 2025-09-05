@@ -11,7 +11,7 @@ task :test => 'lib/memcache/native_server.o'
 
 file 'lib/memcache/native_server.o' do
   puts "Building native server..."
-  `cd ext && ruby extconf.rb && make && cp native_server.bundle native_server.o native_server.so ../lib/memcache/`
+  `cd ext && ruby extconf.rb && make && cp native_server.o native_server.so ../lib/memcache/`
 end
 
 task :default => :test
