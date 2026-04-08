@@ -4,7 +4,7 @@ require 'memcache/pg_server'
 class MemcachePGServerTest < Test::Unit::TestCase
   ActiveRecord::Base.establish_connection(
     :adapter  => "postgresql",
-    :host     => "localhost",
+    :host     => ENV.fetch('DB_HOST', 'localhost'),
     :username => ENV['MEMCACHE_TEST_USER'] || `whoami`.chomp.sub('.','_'),
     :password => "",
     :database => "memcache_test"
